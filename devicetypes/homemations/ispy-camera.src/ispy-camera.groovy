@@ -1,8 +1,8 @@
  /** 
  *  iSpy Camera
- *  Image Capture and Video Streaming courtesy Stephen Harris (stephennharris@bellsouth.com) 
+ *  Image Capture and Video Streaming courtesy Stephen Harris (stephen@homemations.com) 
  *   
- *  Copyright 2016 tobor13 
+ *  Copyright 2016 Homemations, Inc. 
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except 
  *  in compliance with the License. You may obtain a copy of the License at: 
@@ -162,7 +162,7 @@ def take() {
 }
 
 def on() {
-    log.debug "Turning Dropcam on"
+    log.debug "Turning cam on"
    
     def ptzCmd = [cmd: "switchon", ot: "2"]
     httpGet(getAPIParams(parent.getCameraPath(), ptzCmd, false), { response -> response?.data })
@@ -170,7 +170,7 @@ def on() {
 }
 
 def off() {
-    log.debug "Turning Dropcam off"
+    log.debug "Turning cam off"
 
     def ptzCmd = [cmd: "switchoff", ot: "2"]
     httpGet(getAPIParams(parent.getCameraPath(), ptzCmd, false), { response -> response?.data })
