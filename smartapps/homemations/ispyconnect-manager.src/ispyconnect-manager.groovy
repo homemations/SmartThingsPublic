@@ -70,9 +70,9 @@ def preferenceCredentialsValidation() {
 			], {
                 response ->
                 if (response.status == 200) {
-                    log.debug "Response: ${response.data}"
+                    log.debug "Response: ${response.data}, Response Array Size: ${response.data.size()}"
 
-                    if (response.data.configuration?.connectedServers?.name != null) {
+                    if (response.data.configuration?.connectedServers?.name != null && response.data.size() >= 1) {
                         // Build map for Server configuration data
                         def server = [
                             name:			response.data.configuration.connectedServers.name.get(0),
@@ -101,7 +101,7 @@ def preferenceCredentialsValidation() {
                         if (response?.data?.error != null) {
                             pageParagraph = "Error: ${response.data?.error}, tap Back/Done to return to the previous page to fix the credentials then try again."
                         } else {
-                            pageParagraph = "Missing expected JSON data.  Make sure local iSpyConnect server is running and connectivitiy to the platform is operational, then retry."
+                            pageParagraph = "Missing expected JSON data from iSpyConnect Platform!  Make sure the local iSpyConnect server is running and connectivitiy to the iSpyConnect Platform (INTERNET) is operational, then retry."
                         }
                     }
                 } else {
@@ -111,9 +111,9 @@ def preferenceCredentialsValidation() {
                     pageSection = "iSpyConnect platform unexpected responsee"
                     
                     if (response.status != null) {
-                    	pageParagraph = "Details:  HTTP status response was ${response.status}"
+                    	pageParagraph = "HTTP status response was ${response.status}"
                 	} else {
-                		pageParagraph = "Details:  No response status from the iSpyConnect platform APIs.  Check to make sure the network connectivity is up and your local iSpy instance is operational"
+                		pageParagraph = "No response status from the iSpyConnect platform APIs.  Check to make sure the network/INTERNET connectivity is up and your local iSpyConnect Server is operational"
                 	}
                 }
             }	
@@ -204,9 +204,9 @@ def initialize() {
 
 	//send activity feeds to tell that device is connected
 	def notificationMessage = "is connected to SmartThings"
-	// h(notificationMessage)
-	// atomicState.timeSendPush = null
-	// atomicState.reAttempt = 0
+	// h(notificationMessage) causing error
+	atomicState.timeSendPush = null
+	atomicState.reAttempt = 0
 
 	//first time polling data from cameras
     pollHandler()
@@ -248,9 +248,9 @@ def pollChildren(child = null) {
     	serverURI = "https://" + server.wan
     }  
 
-	// Initialize result
+	// Initialize result 
     def result = false
-	try{
+   	try{
 		httpGet(
         	[	uri: 	serverURI,
         		path: 	getCameraPath(),
@@ -260,14 +260,18 @@ def pollChildren(child = null) {
                 	storeCameraData(response.data.objectList)
                 	result = true
             	}
-			}
+            }
     	)
 	} catch (groovyx.net.http.HttpResponseException e) {
 		log.trace "Exception polling children: " + e.response.data.status
+        log.debug "Exception Response:  ${e.response.data.status.code}"
         if (e.response.data.status.code == 14) {
             log.debug "TODO!"
         }
-	}
+	} catch (NoRouteToHostException e) {
+        log.debug "Exception polling children: " + e    
+    }
+    
 	return result
 }
 
